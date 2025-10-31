@@ -44,16 +44,15 @@ This system gives you:
 ## 🌊 Mermaid Diagram (high-level flow)
 
 ```mermaid
-flowchart TB
-    A[Telegram Trigger]
-    A --> B[Lead Assistant AI Agent]
-    B --> C{Select Tool}
-    C --> D[Lead Qual Tool (Subworkflow)]
-    C --> E[Personal Message (Subworkflow)]
-    D --> F[Google Sheet: Update Rating & Reasoning]
-    E --> G[Google Sheet: Update Outreach]
-    F --> H[Telegram: Send Response]
-    G --> H
+flowchart TD
+A["Telegram Trigger"] --> B["Lead Assistant AI Agent"]
+B --> C["Lead Qual Tool"]
+B --> D["Personal Message"]
+C --> E["Google Sheet: Update Rating & Reasoning"]
+D --> F["Google Sheet: Update Outreach"]
+E --> G["Telegram: Send Response"]
+F --> G
+
 ```
 
 ---
