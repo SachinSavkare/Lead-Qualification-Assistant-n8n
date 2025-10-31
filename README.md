@@ -46,14 +46,13 @@ This system gives you:
 ```mermaid
 flowchart LR
   A[Telegram Trigger] --> B[Lead Assistant AI Agent]
-  B --> C{Call Tool?}
-  C -->|Qualify| D[Lead Qual Tool (Subworkflow)]
-  C -->|Message| E[Personal Message (Subworkflow)]
+  B --> C{Select Tool}
+  C --> D[Lead Qual Tool (Subworkflow)]
+  C --> E[Personal Message (Subworkflow)]
   D --> F[Google Sheet: Update Rating & Reasoning]
   E --> G[Google Sheet: Update Outreach]
-  F --> B
-  G --> B
-  B --> H[Telegram: Send Response]
+  F --> H[Telegram: Send Response]
+  G --> H
 ```
 
 ---
