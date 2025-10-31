@@ -1,0 +1,269 @@
+{
+  "name": "4.1 Lead Assistant AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Agenda\n\n**This agent is going to qualify leads and going to generate a personal message for each lead**",
+        "height": 128,
+        "width": 640
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -352
+      ],
+      "id": "24fc3acd-69f1-4c59-8662-beadd2b26d78",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=##Overview:\nYou are the Lead Assistant AI Agent. Your job is to handle incoming lead-related queries and connect with the right tools instantly when required. You do not process the logic yourself. simply access the correct subworkflow tool and return the response.\n\nTools:\n\n1. Lead Qual Tool – Used to qualify leads.\n2. Personal Message – Used to generate personalized outreach messages.\n\nCall these tools when a relevant query arrives and return the output as received.\n\nCurrent Date & Time: {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        -128
+      ],
+      "id": "4ef59d5a-ac0d-474b-8930-d61477eabaa7",
+      "name": "Lead Assistant AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        80
+      ],
+      "id": "db7201e2-3f16-4a32-af02-ba7f780aa2e6",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to qualify leads in database",
+        "workflowId": {
+          "__rl": true,
+          "value": "Vyej9MfBIxBHgU8t",
+          "mode": "list",
+          "cachedResultName": "4.2 ⚙️Lead Qual Tool"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        80
+      ],
+      "id": "799c5d12-92b4-4a64-ada0-2562b9345e16",
+      "name": "Lead Qual Tool"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to generate message for leads",
+        "workflowId": {
+          "__rl": true,
+          "value": "NABtsO6W0melX6Zf",
+          "mode": "list",
+          "cachedResultName": "4.3 ⚙️Personal Message"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        736,
+        80
+      ],
+      "id": "1e8973fc-8bea-4cc2-ae07-7297284f945d",
+      "name": "Personal Message"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        80
+      ],
+      "id": "80dcfbca-4534-4fa5-95b2-8f6b0ca12300",
+      "name": "gpt-4.1-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "2ll7nWhcZokpqeYF",
+          "name": "OpenAi account AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Query\n\nCan you qualify the leads in the database\n\nmake message for those leads"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -80
+      ],
+      "id": "e394bbae-47d8-46f6-83c2-6b2e13675b84",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        128,
+        -128
+      ],
+      "id": "b7f425c1-e36e-4e2b-a0d4-90e0bdda6ba5",
+      "name": "Telegram Trigger",
+      "webhookId": "2cbbb5a7-390f-4e3b-adc7-8a8ca865df85",
+      "credentials": {
+        "telegramApi": {
+          "id": "zkiSktd27uDpf3Q0",
+          "name": "Telegram account AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        688,
+        -128
+      ],
+      "id": "6572fb38-0b73-4718-bb7d-4c194ed2a9ea",
+      "name": "Response",
+      "webhookId": "8b58c632-d3f1-4ab4-a4f8-06a3e7bfb4aa",
+      "credentials": {
+        "telegramApi": {
+          "id": "zkiSktd27uDpf3Q0",
+          "name": "Telegram account AIS"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Lead Assistant AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Qual Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Assistant AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personal Message": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Assistant AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4.1-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lead Assistant AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Lead Assistant AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Assistant AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c57aa35f-5be7-45f6-b4f5-9815512353bb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "91f42292365f2736b62ea45ddfd531a5d9a185f2bc4a363bfb1ae1188ac76851"
+  },
+  "id": "6uu3B45KRzBSQ19T",
+  "tags": []
+}

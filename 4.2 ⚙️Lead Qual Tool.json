@@ -1,0 +1,457 @@
+{
+  "name": "4.2 ⚙️Lead Qual Tool",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Field to Set\n**reply** : Object \n\nTo get output as Object instead string\n{{ JSON.parse($json.message.content) }}\n\n1. returns the raw value of message.content as-is.\nEg : {{ $json.message.content }}\nInput : \"{\\\"name\\\":\\\"John\\\",\\\"age\\\":30}\"\nOutput : It remains a text string like above, not a real object.\n\n2. converts the JSON string into a real JSON object\nEg: {{ JSON.parse($json.message.content) }}\nInput : \"{\\\"name\\\":\\\"John\\\",\\\"age\\\":30}\"\nOutput: {\n  \"name\": \"John\",\n  \"age\": 30\n}\n",
+        "height": 400,
+        "width": 464
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        544
+      ],
+      "id": "11ec027b-d742-4a85-aeb8-a1e7acc07e69",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        704,
+        -48
+      ],
+      "id": "0da8fc1f-c17c-4528-85ea-dc32a06d2cd5",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Here is lead information:\nName:{{ $json['Full Name'] }}\nCompany Size:{{ $json['Company Size'] }}\nDecision Maker:{{ $json['Are you a decision-maker for your company,s'] }}"
+            },
+            {
+              "content": "=Your task is to qualify incoming leads. Leads are form submissions to a closed community group. Use the following criteria for a qualified lead:\n\n1. They need to be a decision maker who runs the company, or has influence in the decision making process. This is the main criterion.\n2. We currently only want to work with companies with around 45 or LESS employees, also known as, company size. This is the second criterion.\n\nPlease think step by step to decide if a lead is qualified or not.\n\nIf a lead is qualified, reply with \"Qualified\" in response, otherwise reply \"Not Qualified\". Reply with a JSON in the following format:\n{\"qualified?\" : \"string\", \"reasoning\" : \"string\"}. Reply only with JSON and nothing more.",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        224,
+        48
+      ],
+      "id": "2014834a-7ebf-4ef3-ad07-aa7444fbefad",
+      "name": "LeadVerdict-45 AI Agent",
+      "credentials": {
+        "openAiApi": {
+          "id": "2ll7nWhcZokpqeYF",
+          "name": "OpenAi account AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -128,
+        -64
+      ],
+      "id": "9849c4ee-3295-4bf5-b175-f40136098b34",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ofbr0kFzkVsIx20tuQuLwPaIn_64sUr0luF8yPOUm74",
+          "mode": "list",
+          "cachedResultName": "3. Lets Work Together (Response)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ofbr0kFzkVsIx20tuQuLwPaIn_64sUr0luF8yPOUm74/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1145315200,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ofbr0kFzkVsIx20tuQuLwPaIn_64sUr0luF8yPOUm74/edit#gid=1145315200"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        32,
+        -64
+      ],
+      "id": "2d19b70c-38f7-45ad-9708-9729795117b8",
+      "name": "Get Response",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r5dJyl6N7Nvh7Os3",
+          "name": "Google Sheets AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fd66a4e6-78e3-4867-b256-fd3f7ac15d87",
+              "name": "reply",
+              "value": "={{ JSON.parse($json.message.content) }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        48
+      ],
+      "id": "c407fb79-3f7a-475e-ac06-432cc173cf08",
+      "name": "Parse (Qualified or Not Qualified)"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ofbr0kFzkVsIx20tuQuLwPaIn_64sUr0luF8yPOUm74",
+          "mode": "list",
+          "cachedResultName": "3. Lets Work Together (Response)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ofbr0kFzkVsIx20tuQuLwPaIn_64sUr0luF8yPOUm74/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1145315200,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ofbr0kFzkVsIx20tuQuLwPaIn_64sUr0luF8yPOUm74/edit#gid=1145315200"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.Timestamp }}",
+            "Rating": "={{ $json.reply['qualified?'] }}",
+            "Reasoning": "={{ $json.reply.reasoning }}"
+          },
+          "matchingColumns": [
+            "Timestamp"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Business Industry",
+              "displayName": "Business Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Are you a decision-maker for your company,s",
+              "displayName": "Are you a decision-maker for your company,s",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "What Area of Business are you looking to Audit ?",
+              "displayName": "What Area of Business are you looking to Audit ?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Preferred Contact Methods(s)",
+              "displayName": "Preferred Contact Methods(s)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Best Time to Contact ?",
+              "displayName": "Best Time to Contact ?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Anything else we should know?",
+              "displayName": "Anything else we should know?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reasoning",
+              "displayName": "Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Outreach",
+              "displayName": "Outreach",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        -48
+      ],
+      "id": "5f05bffd-fb96-4f94-920e-8985bc0763be",
+      "name": "Update Rating and Reasoning",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r5dJyl6N7Nvh7Os3",
+          "name": "Google Sheets AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ea812ba9-e758-4e26-9baf-d8a85bad3f31",
+              "name": "response",
+              "value": "done",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        -48
+      ],
+      "id": "a52293c7-cc68-455a-80a5-6727b05c6149",
+      "name": "Response to Lead Assistant AI Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Update Rating and Reasoning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LeadVerdict-45 AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse (Qualified or Not Qualified)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Response": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LeadVerdict-45 AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse (Qualified or Not Qualified)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Update Rating and Reasoning": {
+      "main": [
+        [
+          {
+            "node": "Response to Lead Assistant AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "20920c91-8ec1-4a4c-92a5-15612abc9159",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "91f42292365f2736b62ea45ddfd531a5d9a185f2bc4a363bfb1ae1188ac76851"
+  },
+  "id": "Vyej9MfBIxBHgU8t",
+  "tags": []
+}
